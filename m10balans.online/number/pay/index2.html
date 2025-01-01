@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yoxlanılır</title>
+    <style>
+       body {
+    background-image: url('images/background.html'); /* Arka plan resmi yolunu buraya ekleyin */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+h1 {
+    color: white;
+    font-size: 3rem; /* Başlık boyutunu artırdım */
+    margin-bottom: 20px; /* Başlık altındaki boşluğu artırdım */
+}
+
+#logo {
+    margin-top: -100px; /* Logo yukarı taşınacak mesafeyi artırdım */
+    transform: scale(1.9); /* Logoyu %150 oranında büyüttüm */
+}
+
+/* Dönen daire animasyonu */
+.loader {
+    border: 24px solid #f3f3f3; /* Dairenin sınır kalınlığını artırdım */
+    border-top: 24px solid #3498db; /* Dairenin üst kısmını daha belirgin yaptım */
+    border-radius: 50%;
+    width: 200px; /* Genişliği artırdım */
+    height: 200px; /* Yüksekliği artırdım */
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.kart-image {
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.kart-image img {
+    max-width: 40%;
+    height: auto;
+}
+    </style>
+</head>
+
+<body>
+    <div id="logo">
+        <img src="logo.svg" alt="Logo" width="200">
+    </div>
+    <h1></h1>
+
+    <div class="loader"></div>
+
+    <!-- Kart Resmi Eklendi -->
+    <div class="kart-image">
+        <img src="kart.png" alt="Kart Görseli">
+    </div>
+
+    <script>
+        // Pencereyi büyüt
+        window.onload = function () {
+            // Pencereyi %55 büyüt
+            window.resizeTo(window.innerWidth * 0.55, window.innerHeight * 0.55);
+        };
+
+        // 10 saniye (10000 milisaniye) bekleyip sonra yönlendirme yap
+        setTimeout(function () {
+            window.location.href = "index.html"; // Yönlendirme işlemi
+        }, 10000);
+    </script>
+
+   
+</body>
+
+</html>

