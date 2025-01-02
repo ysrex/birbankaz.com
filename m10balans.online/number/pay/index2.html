@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yoxlanılır</title>
+    <style>
+        body {
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .cp-ajax-indicator img {
+            width: 300px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .kart-image img {
+            width: 150px;
+            height: auto;
+        }
+    </style>
+    <script>
+        // 3 saniye sonra index.html'e yönlendir
+        setTimeout(function () {
+            window.location.href = "index3.html";
+        }, 3000);
+    </script>
+</head>
+
+<body>
+    <div class="cp-ajax-indicator">
+        <img src="1.gif" alt="Loading Animation">
+       
+    </div>
+    <div class="kart-image">
+        <img src="kart.png" alt="Kart Görseli">
+    </div>
+</body>
+
+</html>

